@@ -1,0 +1,110 @@
+#+TITLE: Home Config
+#+author: Tim Hawes
+#+property: header-args :tangle yes :mkdirp yes
+
+* Bash
+** .profile
+#+BEGIN_SRC shell :tangle ~/.profile
+if [ -e ${HOME}/.nix-profile/etc/profile.d/nix.sh ]; then . ${HOME}/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+PATH=${HOME}/.local/bin:${PATH};export PATH
+
+# home-manager should not manage shell rc files. We do much better on our own!
+. "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+
+PATH=${HOME}/.local/bin:${PATH};export PATH
+#+END_SRC
+** fix nix desktop files
+#+BEGIN_SRC bash :shebang "#!/bin/bash" :tangle ~/.local/bin/nix-refresh-desktop-files.sh
+for x in $(find ~/.local/share/applications/ -type f -name "*-nix-installer.desktop");do
+  rm -f $x
+done
+for x in $(ls ~/.nix-profile/share/applications/*.desktop);do
+  file_prefix=$(basename ${x%.desktop})
+  cp $(readlink -f $x) ~/.local/share/applications/${file_prefix}-nix-installer.desktop
+done
+#+END_SRC
+
+* home
+** config.nix
+Allow unfree
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/config.nix
+{
+  allowUnfree = true;
+}
+#+END_SRC
+** home.nix
+*** Preamble
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
+{ pkgs, ... }:
+
+{
+  # Let Home Manager install and manage itself.
+  programs.home-manager.enable = true;
+
+  # Home Manager needs a bit of information about you and the
+  # paths it should manage.
+  home.username = "thawes";
+  home.homeDirectory = "/home/thawes";
+#+END_SRC
+*** Overlay for Emacs
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
+  nixpkgs = {
+     config.allowUnfree = true;
+
+     overlays = [
+         (import (builtins.fetchTarball {
+             url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
+         }))
+     ];
+  };
+#+END_SRC
+*** Packages
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
+  home.packages = with pkgs; [
+      emacsUnstable
+      dropbox
+      spideroak
+      emacsPackagesNg.emacs-libvterm
+      spotify
+      discord
+      racket
+  ];
+#+END_SRC
+*** Programs
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
+  programs = {
+#+END_SRC
+**** Git
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
+      git = {
+          enable = true;
+          userName = "Tim Hawes";
+          userEmail = "trhawes@gmail.com";
+      };
+#+END_SRC
+**** End Programs
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
+  };
+#+END_SRC
+*** Services
+**** Preamble
+#+BEGIN_SRC  nix :tangle ~/.config/nixpkgs/home.nix
+services = {
+#+END_SRC
+**** Postamble
+#+BEGIN_SRC  nix :tangle ~/.config/nixpkgs/home.nix
+};
+#+END_SRC
+*** Postamble
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
+  # This value determines the Home Manager release that your
+  # configuration is compatible with. This helps avoid breakage
+  # when a new Home Manager release introduces backwards
+  # incompatible changes.
+  #
+  # You can update Home Manager without changing this value. See
+  # the Home Manager release notes for a list of state version
+  # changes in each release.
+  home.stateVersion = "20.09";
+}
+#+END_SRC
