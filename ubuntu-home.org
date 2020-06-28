@@ -6,12 +6,14 @@
 ** .profile
 #+BEGIN_SRC shell :tangle ~/.profile
 if [ -n ${XDG_SESSION_ID} ];then
+    xdgpath=$(echo $XDG_DATA_DIRS|sed -e 's#/usr/local/share:##' -e 's#/usr/share:##')
+    XDG_DATA_DIRS=/usr/local/share:/usr/share
     for x in $(find ~/.nix-profile/share/applications/*.desktop);do
-        export XDG_DATA_DIRS=$(dirname $(dirname $(readlink -f $x))):${XDG_DATA_DIRS}
+        XDG_DATA_DIRS=$(dirname $(dirname $(readlink -f $x))):${XDG_DATA_DIRS}
     done
+    XDG_DATA_DIRS=${HOME}/.local/share:${xdgpath}:${XDG_DATA_DIRS}
+    export XDG_DATA_DIRS
 fi
-if [ -e ${HOME}/.nix-profile/etc/profile.d/nix.sh ]; then . ${HOME}/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
-PATH=${HOME}/.local/bin:${PATH};export PATH
 
 # home-manager should not manage shell rc files. We do much better on our own!
 . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
