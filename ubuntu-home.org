@@ -5,6 +5,11 @@
 * Bash
 ** .profile
 #+BEGIN_SRC shell :tangle ~/.profile
+if [ -n ${XDG_SESSION_ID} ];then
+    for x in $(find ~/.nix-profile/share/applications/*.desktop);do
+        export XDG_DATA_DIRS=$(dirname $(dirname $(readlink -f $x))):${XDG_DATA_DIRS}
+    done
+fi
 if [ -e ${HOME}/.nix-profile/etc/profile.d/nix.sh ]; then . ${HOME}/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 PATH=${HOME}/.local/bin:${PATH};export PATH
 
@@ -13,23 +18,21 @@ PATH=${HOME}/.local/bin:${PATH};export PATH
 
 PATH=${HOME}/.local/bin:${PATH};export PATH
 #+END_SRC
-** fix nix desktop files
-#+BEGIN_SRC bash :shebang "#!/bin/bash" :tangle ~/.local/bin/nix-refresh-desktop-files.sh
-for x in $(find ~/.local/share/applications/ -type f -name "*-nix-installer.desktop");do
-  rm -f $x
-done
-for x in $(ls ~/.nix-profile/share/applications/*.desktop);do
-  file_prefix=$(basename ${x%.desktop})
-  cp $(readlink -f $x) ~/.local/share/applications/${file_prefix}-nix-installer.desktop
-done
-#+END_SRC
-
+* Fontconfig
+  #+BEGIN_SRC xml :tangle ~/.config/fontconfig/conf.d/10-nix-profile-fonts.conf
+  <!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+  <fontconfig>
+    <dir>~/.nix-profile/lib/X11/fonts</dir>
+    <dir>~/.nix-profile/share/fonts</dir>
+  </fontconfig>
+  #+END_SRC
 * home
 ** config.nix
 Allow unfree
 #+BEGIN_SRC nix :tangle ~/.config/nixpkgs/config.nix
 {
   allowUnfree = true;
+  fonts.fontconfig.enable = true;
 }
 #+END_SRC
 ** home.nix
@@ -59,18 +62,38 @@ Allow unfree
   };
 #+END_SRC
 *** Packages
+**** Preamble
 #+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
   home.packages = with pkgs; [
+#+END_SRC
+**** Packages to install
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
       emacsUnstable
+      sqlite
       dropbox
       spideroak
       emacsPackagesNg.emacs-libvterm
       spotify
       discord
       racket
+      nodejs-12_x
+      enpass
+      zoom-us
+#+END_SRC
+**** Fonts to install
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
+      source-code-pro
+      source-sans-pro
+      source-serif-pro
+      roboto-mono
+      iosevka
+#+END_SRC
+**** Postamble
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
   ];
 #+END_SRC
 *** Programs
+**** Preamble
 #+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
   programs = {
 #+END_SRC
@@ -82,7 +105,7 @@ Allow unfree
           userEmail = "trhawes@gmail.com";
       };
 #+END_SRC
-**** End Programs
+**** Postamble
 #+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
   };
 #+END_SRC
