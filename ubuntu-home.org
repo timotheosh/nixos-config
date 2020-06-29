@@ -190,7 +190,3 @@ services = {
   home.stateVersion = "20.09";
 }
 #+END_SRC
-
-*** Python
-#+BEGIN_SRC  nix :tangle ~/.config/nixpkgs/home.nix
-#+END_SRC
