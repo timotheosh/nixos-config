@@ -18,7 +18,50 @@ fi
 # home-manager should not manage shell rc files. We do much better on our own!
 . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
 
+PATH=${HOME}/perl5/bin:${PATH};export PATH
+PERL5LIB=${HOME}/perl5/lib/perl5;export PERL5LIB
+
+    PATH=$HOME/.roswell/bin:$HOME/.local/bin:$PATH;export PATH
+
+# For virtualenvwrapper
+PROJECT_HOME=${HOME}/.virtualenvs/;export PROJECT_HOME
+VIRTUALENV_PYTHON=/usr/bin/python3;export VIRTUALENV_PYTHON
+
+PROGRAMS=${HOME}/programs;export PROGRAMS
+PATH=${PROGRAMS}/sbin:${PROGRAMS}/bin:${PATH};export PATH
+
+GOPATH=${PROGRAMS}/share/golang;export GOPATH
+PATH=${GOPATH}/bin:${PATH};export PATH
+
+CHICKEN_REPOSITORY=${PROGRAMS}/lib/chicken/8;export CHICKEN_REPOSITORY
+PATH=${PROGRAMS}/lib/chicken/bin:${PATH};export PATH
+
+# For Node
+PATH=${PROGRAMS}/share/node/bin:${PATH}; export PATH
+NODE_PATH=${PROGRAMS}/share/node/lib/node_modules:${NODE_PATH}
+
+# For awscli
+if [ ! -e ~/bin/aws ] && [ -e ~/.virtualenvs/awscli/bin/aws ];then
+    ln -s ~/.virtualenvs/awscli/bin/aws ~/bin/aws
+fi
+
+if [ -e ~/.virtualenvs/awscli/bin/aws_completer ];then
+    complete -C ~/.virtualenvs/awscli/bin/aws_completer aws
+fi
+
+# For exercism.io
+if [ -f ~/.config/exercism/exercism_completion.bash ]; then
+    source ~/.config/exercism/exercism_completion.bash
+fi
+
+if [ -e $HOME/.cargo/bin ];then
+    export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
 PATH=${HOME}/.local/bin:${PATH};export PATH
+
+PATH=${HOME}/bin:${PATH};export PATH
+
 #+END_SRC
 * Fontconfig
   #+BEGIN_SRC xml :tangle ~/.config/fontconfig/conf.d/10-nix-profile-fonts.conf
