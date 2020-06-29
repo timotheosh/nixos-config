@@ -126,6 +126,11 @@ Allow unfree
       nodejs-12_x
       enpass
       zoom-us
+      yubikey-manager-qt
+      yubioath-desktop
+      yubikey-personalization-gui
+      vscode-with-extensions
+      (python36.withPackages (ps: with ps; [ setuptools pip virtualenv ]))
 #+END_SRC
 **** Fonts to install
 #+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
@@ -143,6 +148,13 @@ Allow unfree
 **** Preamble
 #+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
   programs = {
+#+END_SRC
+**** direnv
+#+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
+      direnv = {
+        enable = true;
+        enableNixDirenvIntegration = true;
+      };
 #+END_SRC
 **** Git
 #+BEGIN_SRC nix :tangle ~/.config/nixpkgs/home.nix
@@ -177,4 +189,8 @@ services = {
   # changes in each release.
   home.stateVersion = "20.09";
 }
+#+END_SRC
+
+*** Python
+#+BEGIN_SRC  nix :tangle ~/.config/nixpkgs/home.nix
 #+END_SRC
